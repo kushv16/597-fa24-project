@@ -1,124 +1,13 @@
-## ExpansionNet v2: Exploiting Multiple Sequence Lengths in Fast End to End Training for Image Captioning
+
+# 597-fa24-project
+## Replicating - ExpansionNet v2: Exploiting Multiple Sequence Lengths in Fast End to End Training for Image Captioning
 
 Implementation code for "[Exploiting Multiple Sequence Lengths in Fast End to End Training for Image Captioning](https://www.computer.org/csdl/proceedings-article/bigdata/2023/10386812/1TUPyooQsnu)" [ [BigData2023](https://www.computer.org/csdl/proceedings-article/bigdata/2023/10386812/1TUPyooQsnu) ]
 [ [Arxiv](https://arxiv.org/abs/2208.06551) ], previously entitled as "ExpansionNet v2: Block Static Expansion
 in fast end to end training for Image Captioning". <br>
 
-## Demo
-
-You can test the model on generic images (not included in COCO) downloading
- the checkpoint [here](https://drive.google.com/drive/folders/1bBMH4-Fw1LcQZmSzkMCqpEl0piIP88Y3?usp=sharing)
-and launching the script `demo.py`:
-``` 
-python demo.py \
-     	--load_path your_download_folder/rf_model.pth \
-     	--image_paths your_image_path/image_1 your_image_path/image_2 ...
-
-```
-Some examples:
-
-<p align="center">
-  <img src="./demo_results.png" width="550"/>
-</p>
-
-images are available in `demo_material`.
-
-## Results
-
-[SacreEOS](https://github.com/jchenghu/sacreeos) Signature: `STANDARDwInit+Cider-D[n4,s6.0]+average[nspi5]+1.0.0`. <br>
-Results are artifacts-free.
-
-Online evaluation server results:
- <table>
-  <tr>
-    <th>Captions</th>
-    <th>B1</th>
-    <th>B2</th>
-    <th>B3</th>
-    <th>B4</th>
-    <th>Meteor</th>
-    <th>Rouge-L</th>
-    <th>CIDEr-D</th>
-  </tr>
-  <tr>
-    <th>c40</th>
-    <td>96.9</td>
-    <td>92.6</td>
-    <td>85.0</td>
-    <td>75.3</td>
-    <td>40.1</td>
-    <td>76.4</td>
-    <td>140.8</td>
-  </tr>
-  <tr>
-    <th>c5</th>
-    <td>83.3</td>
-    <td>68.8</td>
-    <td>54.4</td>
-    <td>42.1</td>
-    <td>30.4</td>
-    <td>60.8</td>
-    <td>138.5</td>
-  </tr>
-</table>
-
-Results on the Karpathy test split:
- <table>
-  <tr>
-    <th>Model</th>
-    <th>B@1</th>
-    <th>B@4</th>
-    <th>Meteor</th>
-    <th>Rouge-L</th>
-    <th>CIDEr-D</th>
-    <th>Spice</th>
-  </tr>
-  <tr>
-    <td>Ensemble</td>
-    <td>83.5</td>
-    <td>42.7</td>
-    <td>30.6</td>
-    <td>61.1</td>
-    <td>143.7</td>
-    <td>24.7</td>
-  </tr>
-  <tr>
-    <td>Single</td>
-    <td>82.8</td>
-    <td>41.5</td>
-    <td>30.3</td>
-    <td>60.5</td>
-    <td>140.4</td>
-    <td>24.5</td>
-  </tr>
-</table>
-
-Predictions examples:
-
-<p align="center">
-  <img src="./results_image.png" width="700"/>
-</p>
-
-
-## ONNX & TensorRT
-
-The model supports now ONNX conversion and deployment with TensorRT. 
-The graph can be generated using `onnx4tensorrt/convert2onnx.py`.
-Its execution mainly requires the `onnx` package but the `onnx_runtime` and `onnx_tensorrt` packages are
-optionally used for testing purposes (see `convert2onnx.py` arguments).
-
-Assuming Generic conversion commands:
-```
-python onnx4tensorrt/convert2onnx.py --onnx_simplify true --load_model_path <your_path> &> output_onnx.txt &
-python onnx4tensorrt/onnx2tensorrt.py &> output_tensorrt.txt &
-```
-Currently working only in FP32.
-
 
 ## Training
-
-In this guide we cover all the training steps reported in the paper and
-provide the commands to reproduce our work.
 
 #### Requirements
 
@@ -144,21 +33,6 @@ and the backbone can be found [here](https://github.com/microsoft/Swin-Transform
 the `dataset_coco.json` file and the backbone are suggested to be moved in `github_ignore_materal/raw_data/` since commands provided
 in the following steps assume these files are placed in that directory.
 
-
-#### Premises
-
-For the sake of transparency (at the cost of possibly being overly verbose)
-the complete commands are shown below, but only few arguments deserve a little
-bit of care for the reproduction of our work while most of them are automatically handled.
-
-Logs are stored in `output_file.txt`, which is continuously updated
-until the process is complete (in Linux it may be handy the command `watch -n 1 tail -n 30 output_file.txt`). It is overwritten in each training phase, thus,
-before moving to the next one, make sure to save or make a copy if needed.
-
-Lastly, in some configurations the batch size may look different compared to the one
-reported in the paper when argument `num_accum` is specified (default is 1). This is only
-a visual subtlety, which means that gradient accumulation is performed in order to satisfy 
-the memory constraints of 40GB RAM of a single GPU.
 
 #### 1. Cross Entropy Training: Features generation
 
@@ -290,7 +164,7 @@ It might be required to give permissions to the file `./eval/get_stanford_models
 
 ## Citation
 
-If you find this repository useful, please consider citing (no obligation):
+If you find this repository useful, please consider citing the original authors:
 
 ```
 @inproceedings{hu2023exploiting,
@@ -302,20 +176,3 @@ If you find this repository useful, please consider citing (no obligation):
   organization={IEEE Computer Society}
 }
 ```
-
-## Acknowledgements
-
-We thank the PyTorch team and the following repositories:
-* https://github.com/microsoft/Swin-Transformer
-* https://github.com/ruotianluo/ImageCaptioning.pytorch
-* https://github.com/tylin/coco-caption
-
-special thanks to the work of [Yiyu Wang et al](https://arxiv.org/abs/2203.15350).
-
-We thank the user [@shahizat](https://github.com/shahizat) for the suggestion of ONNX and TensorRT conversions. <br>
-We also thank the github users from the Issues section which provided valuable feedbacks, suggestions,
-and even found very insidious bugs.
-
-
-
-# 597-fa24-project
